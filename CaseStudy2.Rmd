@@ -1,0 +1,53 @@
+---
+title: "CaseStudy2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(mosaic)
+library(gapminder)
+library(tidyverse)
+library(ggplot2)
+countrydata <- gapminder %>%
+  filter(country != "Kuwait")
+
+
+contavg <- countrydata %>%
+  group_by(continent, year) %>%
+  summarise(continentAvg = weighted.mean(gdpPercap,pop),
+            population = mean(pop))
+```
+
+## R Markdown
+Background:
+There are a few main things that I learned from this project. One of the big things that I learned was how to add multiple lines from different datasets onto a single graph. This took me quite a while and I found it very difficult. I was able to find the answers to the things that I was looking for on websites like stackoverflow which I have bookmarked for future use.
+
+I also learned how to create a weighted average using the function which I did not know how to do previously. Overall the thing that I am most proud of was how I was able to learn how to split up a dataset into multiple graphs like this, I think its a great way to represent this data. 
+
+Images:
+
+
+```{r}
+ggplot(data = countrydata) +
+  geom_point(mapping = aes(x = lifeExp, y = gdpPercap, color=continent, size = pop)) + 
+  scale_y_continuous(trans = "sqrt")+
+  facet_wrap(~ year, nrow = 1)
+ggsave("gdplife.png", width=15)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+ggplot()+
+  geom_point(data = countrydata, mapping = aes(x=year, y=gdpPercap, color=continent, group=country))+
+  geom_line(data = countrydata, mapping = aes(x=year, y=gdpPercap, color=continent, group=country))+
+  geom_point(data = contavg, mapping = aes(x=year, y=continentAvg, size=population))+
+  geom_line(data = contavg, mapping = aes(x=year, y=continentAvg))+
+  facet_wrap(~continent, nrow = 1)
+ggsave("gdpyear.png", width=15)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
