@@ -1,0 +1,54 @@
+---
+title: "Task 5 World Data Investigation"
+output: html_document
+---
+
+```{r echo=FALSE}
+library(tidyverse)
+library(ggplot2)
+devtools::install_github("drsimonj/ourworldindata")
+library(ourworldindata)
+library(gapminder)
+```
+
+## Our World in Data (Cancer Mortality)
+
+This section is recreating a graphic from OurWorldinData. The graphic used age standardized and non standardized death rates per 100,000 people. I recreated the graphic using the actual numbers of deaths per 100,000 instead of the growth rate to highlight the true number of deaths per 100,000. 
+
+This is the link of the original graphic. Click on non realtive data to see the graphic i replicated. https://ourworldindata.org/progress-against-cancer
+
+```{r echo=FALSE}
+cdd <- read_csv("cancerdeathrate.csv")
+
+worlddata <- cdd %>%
+  filter(Entity == "World")
+
+ggplot(data = worlddata)+
+  geom_point(mapping = aes(x=Year, y=worlddata$`Age-standardized cancer death rate (per 100,000)`, color="Age-Standardized Death Rate"))+
+  geom_line(mapping = aes(x=Year, y=worlddata$`Age-standardized cancer death rate (per 100,000)`, color="Age-Standardized Death Rate"))+
+  geom_point(mapping = aes(x=Year, y=worlddata$`Cancer death rate (not age-standardized) (per 100,000)`, color="Non Age-Standardized Death Rate"))+
+  geom_line(mapping = aes(x=Year, y=worlddata$`Cancer death rate (not age-standardized) (per 100,000)`, color="Non Age-Standardized Death Rate"))
+
+  
+```
+
+## Child Mortality
+
+This section is focusing the the Child Mortality data from Our World in Data. I decided that best way to highlight all of this information would be to focus on the last 70 years and to average for each country. From this data we can see that continents like Africa and Asia have been having the most rapid improvement over the last 70 years. 
+
+```{r}
+avgmortality <- child_mortality %>%
+  group_by(continent, year) %>%
+  filter(year >= 1950) %>%
+  filter(child_mort > 0) %>%
+  filter(population > 0) %>%
+  summarise(mortality = weighted.mean(child_mort, population))
+
+
+ggplot(data=avgmortality)+
+  geom_line(mapping = aes(x=year, y=mortality, color=continent, group=continent))+
+  facet_wrap(~continent, nrow=2)+
+  labs(x = "Year", y = "Deaths per 100,000")
+```
+
+
